@@ -29,6 +29,6 @@ var options = {
   verbose:  program.verbose
 };
 
-smtp_checker.find_email('chamnap', 'chhorn', program.domain || 'invisionapp.com', options, function() {
+smtp_checker.find_email(program.first_name, program.last_name, program.domain, options, function() {
 
 });

@@ -1,7 +1,7 @@
-module.exports.find_email = function (first_name, last_name, domain, options, mainCallback) {
+module.exports.find_email = function (firstName, lastName, domain, options, mainCallback) {
 
   // Handling options
-  if (!first_name || !last_name || !domain) {
+  if (!firstName || !lastName || !domain) {
     throw new Error("Missing parameters in find_email.process()");
   }
   else if (typeof mainCallback === 'undefined' && options) {
@@ -21,9 +21,9 @@ module.exports.find_email = function (first_name, last_name, domain, options, ma
 
   async.waterfall(
     [
-      // possibleEmails,
+      possibleEmails(firstName, lastName, domain),
       getSMTPAddress,
-      verifyEmail,
+      verifyEmail
     ],
     function(error, success) {
       console.log('error', error);
@@ -38,12 +38,38 @@ module.exports.find_email = function (first_name, last_name, domain, options, ma
     console.log(value.toString().trim());
   }
 
-  function possibleEmail(first_name, last_name, domain) {
+  function possibleEmails(firstName, lastName, domain) {
+    return function(callback) {
+      var fs     = require('fs');
+      var format = require('string-template');
 
+      fs.readFile('./patterns.txt', function (error, data) {
+        if (error) { return callback(error); }
+
+        var content = data.toString().split('\n');
+        var binding = {
+          firstInitial: firstName[0],
+          lastInitial:  lastName[0],
+          firstName:    firstName,
+          lastName:     lastName,
+          domain:       domain
+        };
+
+        var results = [];
+        content.forEach(function(pattern) {
+          var result = format(pattern, binding);
+          if (results.indexOf(result) == -1) {
+            results.push(result);
+          }
+        });
+
+        callback(null, results);
+      });
+    };
   }
 
   // Get the lowest priority MX Records to find the SMTP server
-  function getSMTPAddress(callback) {
+  function getSMTPAddress(possibleEmails, callback) {
     var dns = require('dns');
 
     if(options.dns) {
@@ -75,12 +101,12 @@ module.exports.find_email = function (first_name, last_name, domain, options, ma
             index = i;
           }
         }
-        callback(null, addresses[index].exchange);
+        callback(null, possibleEmails, addresses[index].exchange);
       }
     });
   }
 
-  function verifyEmail(smtp_address, callback) {
+  function verifyEmail(possibleEmails, smtp_address, callback) {
     var net         = require('net');
     var format      = require('string-template');
 
@@ -91,8 +117,7 @@ module.exports.find_email = function (first_name, last_name, domain, options, ma
     var ended       = false;
     var stage       = 0;
 
-    var possibleEmails = ['jeffb@invisionapp.com', 'bajayo@invisionapp.com', 'jeff@invisionapp.com', 'jeffbajayo@invisionapp.com'];
-    var foundEmails    = [];
+    var foundEmails = [];
     var index       = 0;
 
     var command     = '';
@@ -179,7 +204,7 @@ module.exports.find_email = function (first_name, last_name, domain, options, ma
       return callback(error, { success: false, emails: foundEmails, log: responseLog });
     }).on('end', function() {
       ended = true;
-      return callback(null, { success: true, emails: foundEmails, log: responseLog });
+      return callback(null, { success: (foundEmails.length > 0) ? true : false, emails: foundEmails, log: responseLog });
     });
   }
 }
