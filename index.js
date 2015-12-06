@@ -26,12 +26,7 @@ module.exports.find_email = function (firstName, lastName, domain, options, main
       verifyEmail
     ],
     function(error, info) {
-      if (error) {
-        console.error(error);
-      }
-      else {
-        console.log(info);
-      }
+      mainCallback(error, info);
     }
   );
 
