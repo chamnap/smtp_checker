@@ -43,7 +43,7 @@ module.exports.find_email = function (firstName, lastName, domain, options, main
       var fs     = require('fs');
       var format = require('string-template');
 
-      fs.readFile('./patterns.txt', function (error, data) {
+      fs.readFile(__dirname + '/patterns.txt', function (error, data) {
         if (error) { return callback(error); }
 
         var content = data.toString().split('\n');
