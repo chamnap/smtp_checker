@@ -1,3 +1,4 @@
+serverisprobablycatchall@{domain}
 {firstName}@{domain}
 {lastName}@{domain}
 {firstName}{lastName}@{domain}

@@ -117,6 +117,7 @@ module.exports.find_email = function (firstName, lastName, domain, options, main
     var ended       = false;
     var stage       = 0;
 
+    var isCatchAll  = false;
     var foundEmails = [];
     var index       = 0;
 
@@ -174,13 +175,17 @@ module.exports.find_email = function (firstName, lastName, domain, options, main
             break;
           case 3: // RCPT Result
             if (response.indexOf('250') > -1) { // Verified
-              foundEmails.push(possibleEmails[index]);
+              if (index === 0) {
+                isCatchAll = true;
+              } else {
+                foundEmails.push(possibleEmails[index]);
+              }
             }
 
             // Verify another
             response = '';
             index += 1;
-            if (index < possibleEmails.length) {
+            if (index < possibleEmails.length && !isCatchAll) {
               command = format(commands[2], possibleEmails[index]);
               socket.write(command, function() {
                 response     = '';
@@ -201,10 +206,10 @@ module.exports.find_email = function (firstName, lastName, domain, options, main
 
     }).on('error', function(error) {
       ended = true;
-      return callback(error, { success: false, emails: foundEmails, log: responseLog });
+      return callback(error, { found: false, catchAll: isCatchAll, emails: foundEmails, response: responseLog });
     }).on('end', function() {
       ended = true;
-      return callback(null, { success: (foundEmails.length > 0) ? true : false, emails: foundEmails, log: responseLog });
+      return callback(null, { found: (foundEmails.length > 0) ? true : false, catchAll: isCatchAll, emails: foundEmails, response: responseLog });
     });
   }
 }
