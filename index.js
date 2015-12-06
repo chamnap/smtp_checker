@@ -25,16 +25,20 @@ module.exports.find_email = function (firstName, lastName, domain, options, main
       getSMTPAddress,
       verifyEmail
     ],
-    function(error, success) {
-      console.log('error', error);
-      console.log(success);
+    function(error, info) {
+      if (error) {
+        console.error(error);
+      }
+      else {
+        console.log(info);
+      }
     }
   );
 
   function logging(value) {
     responseLog += value.toString();
 
-    if(!options.verbose) return;
+    if (!options.verbose) return;
     console.log(value.toString().trim());
   }
 
