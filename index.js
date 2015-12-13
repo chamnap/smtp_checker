@@ -34,7 +34,7 @@ module.exports.find = function (firstName, lastName, domainName, options, mainCa
     responseLog += value.toString();
 
     if (!options.verbose) return;
-    console.log(value.toString().trim());
+    console.log(value.toString());
   }
 
   function possibleEmails(firstName, lastName, domainName) {
