@@ -1,7 +1,7 @@
-module.exports.find = function (firstName, lastName, domain, options, mainCallback) {
+module.exports.find = function (firstName, lastName, domainName, options, mainCallback) {
 
   // Handling options
-  if (!firstName || !lastName || !domain) {
+  if (!firstName || !lastName || !domainName) {
     throw new Error("Missing parameters in smtp_checker.find()");
   }
   else if (typeof mainCallback === 'undefined' && options) {
@@ -21,7 +21,7 @@ module.exports.find = function (firstName, lastName, domain, options, mainCallba
 
   async.waterfall(
     [
-      possibleEmails(firstName, lastName, domain),
+      possibleEmails(firstName, lastName, domainName),
       getSMTPAddress,
       verifyEmail
     ],
@@ -37,7 +37,7 @@ module.exports.find = function (firstName, lastName, domain, options, mainCallba
     console.log(value.toString().trim());
   }
 
-  function possibleEmails(firstName, lastName, domain) {
+  function possibleEmails(firstName, lastName, domainName) {
     return function(callback) {
       var fs     = require('fs');
       var format = require('string-template');
@@ -51,7 +51,7 @@ module.exports.find = function (firstName, lastName, domain, options, mainCallba
           lastInitial:  lastName[0],
           firstName:    firstName,
           lastName:     lastName,
-          domain:       domain
+          domainName:       domainName
         };
 
         var results = [];
@@ -80,15 +80,15 @@ module.exports.find = function (firstName, lastName, domain, options, mainCallba
         }
       }
       catch(e) {
-        throw new Error("[find_email.js]: Invalid DNS Options");
+        throw new Error("[smtp_checker.js]: Invalid DNS Options");
       }
     }
 
-    dns.resolveMx(domain, function(error, addresses) {
+    dns.resolveMx(domainName, function(error, addresses) {
       if (error || (typeof addresses === 'undefined')) {
         return callback(error);
       } else if (addresses && addresses.length <= 0) {
-        return callback('No MX Records for this domain' + domain);
+        return callback('No MX Records for this domain' + domainName);
       }
       else {
         var index    = 0;
