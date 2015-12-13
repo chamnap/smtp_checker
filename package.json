@@ -14,12 +14,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/chamnap/find_email.git"
+    "url": "git+https://github.com/chamnap/smtp_checker.git"
   },
   "author": "Chamnap Chhorn <chamnapchhorn@gmail.com> (https://github.com/chamnap)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/chamnap/find_email/issues"
+    "url": "https://github.com/chamnap/smtp_checker/issues"
   },
-  "homepage": "https://github.com/chamnap/find_email#readme"
+  "homepage": "https://github.com/chamnap/smtp_checker#readme"
 }

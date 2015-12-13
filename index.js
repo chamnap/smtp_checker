@@ -1,8 +1,8 @@
-module.exports.find_email = function (firstName, lastName, domain, options, mainCallback) {
+module.exports.find = function (firstName, lastName, domain, options, mainCallback) {
 
   // Handling options
   if (!firstName || !lastName || !domain) {
-    throw new Error("Missing parameters in find_email.process()");
+    throw new Error("Missing parameters in smtp_checker.find()");
   }
   else if (typeof mainCallback === 'undefined' && options) {
     mainCallback = options;

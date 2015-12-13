@@ -29,7 +29,7 @@ var options = {
   verbose:  program.verbose
 };
 
-smtp_checker.find_email(program.first_name, program.last_name, program.domain, options, function(error, info) {
+smtp_checker.find(program.first_name, program.last_name, program.domain, options, function(error, info) {
   if (error) {
     console.error(error);
   }
