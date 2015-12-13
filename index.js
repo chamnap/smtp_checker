@@ -48,8 +48,10 @@ module.exports.find = function (options, mainCallback) {
 
   function getPossibleEmails(firstName, lastName, domainName, givenPossibleEmails) {
     return function(callback) {
+      var results = []
+
       if (givenPossibleEmails.length) {
-        callback(null, givenPossibleEmails);
+        results = givenPossibleEmails;
       } else {
         var fs     = require('fs');
         var format = require('string-template');
@@ -73,10 +75,11 @@ module.exports.find = function (options, mainCallback) {
               results.push(result);
             }
           });
-
-          callback(null, results);
         });
       }
+
+      results.unshift('serverisprobablycatchall@' + domainName);
+      callback(null, results);
     };
   }
 

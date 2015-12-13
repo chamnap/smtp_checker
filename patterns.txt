@@ -1,4 +1,3 @@
-serverisprobablycatchall@{domainName}
 {firstName}@{domainName}
 {lastName}@{domainName}
 {firstName}{lastName}@{domainName}
