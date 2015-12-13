@@ -51,7 +51,7 @@ module.exports.find = function (firstName, lastName, domainName, options, mainCa
           lastInitial:  lastName[0],
           firstName:    firstName,
           lastName:     lastName,
-          domainName:       domainName
+          domainName:   domainName
         };
 
         var results = [];
