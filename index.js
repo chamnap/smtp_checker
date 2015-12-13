@@ -1,7 +1,16 @@
-module.exports.find = function (firstName, lastName, domainName, options, mainCallback) {
+module.exports.find = function (options, mainCallback) {
+  var firstName       = options.firstName;
+  var lastName        = options.lastName;
+  var domainName      = options.domainName;
+  var possibleEmails  = options.possibleEmails;
+
+  // Find domainName
+  if (possibleEmails.length) {
+    domainName = possibleEmails[0].split('@')[1];
+  }
 
   // Handling options
-  if (!firstName || !lastName || !domainName) {
+  if ((!firstName || !lastName || !domainName) && !possibleEmails) {
     throw new Error("Missing parameters in smtp_checker.find()");
   }
   else if (typeof mainCallback === 'undefined' && options) {
@@ -21,7 +30,7 @@ module.exports.find = function (firstName, lastName, domainName, options, mainCa
 
   async.waterfall(
     [
-      possibleEmails(firstName, lastName, domainName),
+      getPossibleEmails(firstName, lastName, domainName, possibleEmails),
       getSMTPAddress,
       verifyEmail
     ],
@@ -37,33 +46,37 @@ module.exports.find = function (firstName, lastName, domainName, options, mainCa
     console.log(value.toString());
   }
 
-  function possibleEmails(firstName, lastName, domainName) {
+  function getPossibleEmails(firstName, lastName, domainName, givenPossibleEmails) {
     return function(callback) {
-      var fs     = require('fs');
-      var format = require('string-template');
+      if (givenPossibleEmails.length) {
+        callback(null, givenPossibleEmails);
+      } else {
+        var fs     = require('fs');
+        var format = require('string-template');
 
-      fs.readFile(__dirname + '/patterns.txt', function (error, data) {
-        if (error) { return callback(error); }
+        fs.readFile(__dirname + '/patterns.txt', function (error, data) {
+          if (error) { return callback(error); }
 
-        var content = data.toString().split('\n');
-        var binding = {
-          firstInitial: firstName[0],
-          lastInitial:  lastName[0],
-          firstName:    firstName,
-          lastName:     lastName,
-          domainName:   domainName
-        };
+          var content = data.toString().split('\n');
+          var binding = {
+            firstInitial: firstName[0],
+            lastInitial:  lastName[0],
+            firstName:    firstName,
+            lastName:     lastName,
+            domainName:   domainName
+          };
 
-        var results = [];
-        content.forEach(function(pattern) {
-          var result = format(pattern, binding);
-          if (results.indexOf(result) == -1) {
-            results.push(result);
-          }
+          var results = [];
+          content.forEach(function(pattern) {
+            var result = format(pattern, binding);
+            if (results.indexOf(result) == -1) {
+              results.push(result);
+            }
+          });
+
+          callback(null, results);
         });
-
-        callback(null, results);
-      });
+      }
     };
   }
 
@@ -118,6 +131,7 @@ module.exports.find = function (firstName, lastName, domainName, options, mainCa
 
     var isCatchAll  = false;
     var foundEmails = [];
+    var maybeEmails = [];
     var index       = 0;
 
     var command     = '';
@@ -166,7 +180,7 @@ module.exports.find = function (firstName, lastName, domainName, options, mainCa
               socket.write(command, function() {
                 stage       += 1;
                 response     = '';
-                logging(command);
+                logging('\r\n' + command);
               });
             } else {
               socket.end();
@@ -188,7 +202,7 @@ module.exports.find = function (firstName, lastName, domainName, options, mainCa
               command = format(commands[2], possibleEmails[index]);
               socket.write(command, function() {
                 response     = '';
-                logging(command);
+                logging('\r\n' + command);
               });
             } else if(!ended) {
               command = commands[commands.length-1]; // QUIT
