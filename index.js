@@ -3,6 +3,7 @@ module.exports.find = function (options, mainCallback) {
   var lastName        = options.lastName;
   var domainName      = options.domainName;
   var possibleEmails  = options.possibleEmails;
+  var catchAll        = options.catchAll;
 
   // Find domainName
   if (possibleEmails.length) {
@@ -50,7 +51,7 @@ module.exports.find = function (options, mainCallback) {
     return function(callback) {
       var results = []
 
-      if (givenPossibleEmails.length) {
+      if (givenPossibleEmails.length > 0) {
         results = givenPossibleEmails;
       } else {
         var fs     = require('fs');
@@ -68,7 +69,6 @@ module.exports.find = function (options, mainCallback) {
             domainName:   domainName
           };
 
-          var results = [];
           content.forEach(function(pattern) {
             var result = format(pattern, binding);
             if (results.indexOf(result) == -1) {
@@ -78,7 +78,9 @@ module.exports.find = function (options, mainCallback) {
         });
       }
 
-      results.unshift('serverisprobablycatchall@' + domainName);
+      if (catchAll) {
+        results.unshift('serverisprobablycatchall@' + domainName);
+      }
       callback(null, results);
     };
   }
@@ -191,7 +193,7 @@ module.exports.find = function (options, mainCallback) {
             break;
           case 3: // RCPT Result
             if (response.indexOf('250') > -1) { // Verified
-              if (index === 0) {
+              if (index === 0 && catchAll) {
                 isCatchAll = true;
               } else {
                 foundEmails.push(possibleEmails[index]);
@@ -222,10 +224,19 @@ module.exports.find = function (options, mainCallback) {
 
     }).on('error', function(error) {
       ended = true;
-      return callback(error, { found: false, catchAll: isCatchAll, emails: foundEmails, response: responseLog });
+      var result = { found: false, catchAll: isCatchAll, emails: foundEmails, response: responseLog };
+      if (catchAll) {
+        result.catchAll = isCatchAll;
+      }
+
+      return callback(error, result);
     }).on('end', function() {
       ended = true;
-      return callback(null, { found: (foundEmails.length > 0) ? true : false, catchAll: isCatchAll, emails: foundEmails, response: responseLog });
+      var result = { found: (foundEmails.length > 0) ? true : false, emails: foundEmails, response: responseLog };
+      if (catchAll) {
+        result.catchAll = isCatchAll;
+      }
+      return callback(null, result);
     });
   }
 }
