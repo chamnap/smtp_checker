@@ -134,7 +134,7 @@ module.exports.find = function (options, mainCallback) {
     var ended       = false;
     var stage       = 0;
 
-    var isCatchAll  = false;
+    var isCatchAll  = null;
     var foundEmails = [];
     var maybeEmails = [];
     var index       = 0;
@@ -192,12 +192,19 @@ module.exports.find = function (options, mainCallback) {
             }
             break;
           case 3: // RCPT Result
-            if (response.indexOf('250') > -1) { // Verified
-              if (index === 0 && catchAll) {
+            if (index === 0 && catchAll) {
+              if (response.indexOf('550') > -1 ||
+                  response.indexOf('551') > -1 ||
+                  response.indexOf('552') > -1 ||
+                  response.indexOf('553') > -1 ||
+                  response.indexOf('554') > -1) {
+                isCatchAll = false;
+              } else if (response.indexOf('250') > -1) {
                 isCatchAll = true;
-              } else {
-                foundEmails.push(possibleEmails[index]);
               }
+            }
+            else if (response.indexOf('250') > -1) { // Verified
+              foundEmails.push(possibleEmails[index]);
             }
 
             // Verify another
