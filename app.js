@@ -10,8 +10,8 @@ program
   .option('-d, --domain_name [value]',      'domain name')
   .option('-e, --possible_emails [value]',  'possible emails')
   .option('-c, --catch_all [value]',        'catch_all')
-  .option('-s, --sender [value]',           'email address to use as sender in SMTP connections, defaults to `contact@pixelrecruiting.com` [*recommend to avoid spam]')
-  .option('-F, --fqdn [value]',             'domain, used as part of the HELO, defaults to `mail.pixelrecruiting.com`')
+  .option('-s, --sender [value]',           'email address to use as sender in SMTP connections, defaults to `name@example.org` [*recommend to change avoid spam]')
+  .option('-F, --fqdn [value]',             'domain, used as part of the HELO, defaults to `mail.example.org`')
   .option('-D, --dns [value]',              'ip address, or array of ip addresses (splitted by comma), used to set the servers of the dns check, defaults to 8.8.8.8 and 8.8.4.4')
   .option('-t, --timeout [value]',          'integer, socket timeout defaults to 0 which is no timeout', parseInt)
   .option('-p, --port [value]',             'integer, port to connect with defaults to 25', parseInt)
@@ -24,7 +24,7 @@ var options = {
   domainName:     program.domain_name,
   catchAll:       (program.catch_all == undefined) ? true : (program.catch_all == 'true' || program.catch_all == true),
   possibleEmails: (program.possible_emails == undefined) ? [] : program.possible_emails.split(','),
-  sender:         program.sender,
+  sender:         program.sender || '',
   fqdn:           program.fqdn,
   dns:            program.dns,
   timeout:        program.timeout,

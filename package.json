@@ -1,13 +1,16 @@
 {
-  "name": "me",
+  "name": "smtp_checker",
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "email-verify": "0.0.16",
     "commander": "2.9.0",
     "async": "1.5.0",
     "string-template": "0.2.1"
+  },
+  "preferGlobal": true,
+  "bin": {
+    "smtp_checker": "./app.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -21,5 +24,11 @@
   "bugs": {
     "url": "https://github.com/chamnap/smtp_checker/issues"
   },
-  "homepage": "https://github.com/chamnap/smtp_checker#readme"
+  "homepage": "https://github.com/chamnap/smtp_checker#readme",
+  "keywords": [
+    "email",
+    "smtp",
+    "verify",
+    "validate"
+  ]
 }
